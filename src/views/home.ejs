@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Home Page</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7; /* Light gray background */
+      color: #333; /* Dark text color */
+    }
+
+    h2 {
+      color: #444; /* Dark gray heading color */
+      text-align: center; 
+    }
+
+    h3 {
+      color: #666; /* Medium gray heading color */
+    }
+
+    .container {
+      display: flex;
+      justify-content: space-around; 
+      margin-top: 20px;
+    }
+
+    .column {
+      flex: 1;
+      margin: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: #fff; /* White background for columns */
+    }
+
+    .column h3 {
+      text-align: center; 
+    }
+
+    .task {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #e0f7fa; /* Light blue task background */
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      cursor: grab;
+    }
+
+    .task .task-content {
+      flex-grow: 1;
+      margin-right: 10px;
+    }
+
+  
+    .task .delete-btn:hover {
+      background-color: #ff1744; /* Darken the delete button on hover */
+    }
+
+    .add-task-container {
+      text-align: center;
+      margin-bottom: 20px; /* Add some margin to separate it from the tasks */
+    }
+
+    .input-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .input-container label {
+      margin-right: 10px;
+    }
+
+
+    .add-task-form input[type="text"] {
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      margin-right: 10px;
+    }
+
+    .add-task-form button {
+      padding: 8px 16px;
+      background-color: #4caf50; /* Green button background */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .add-task-form button:hover {
+      background-color: #45a049; /* Darken the button on hover */
+    }
+
+    .logout-btn {
+      display: inline-block;
+      text-align: center;
+      margin-top: 20px;
+      text-decoration: none;
+      padding: 6px 12px;
+      background-color: #757575; /* Grey logout button background */
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .logout-btn:hover {
+      background-color: #616161; /* Darken the logout button on hover */
+    }
+
+    .delete-btn {
+      background-color: #757575; /* Grey delete button background */
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+.delete-btn:hover {
+  background-color: #616161; /* Darken the delete button on hover */
+}
+
+  </style>
+</head>
+<body>
+  <h2>Task Tracker</h2>
+
+  <div class="add-task-container">
+    <h3>Add New Task</h3>
+    <form action="/add-task" method="POST">
+      <div class="input-container">
+        <label for="task">Task Description:</label>
+        <input type="text" id="task" name="task" required>
+      </div>
+      <button type="submit">Add Task</button>
+    </form>
+  </div>
+  
+  
+
+  <div class="container">
+    <div class="column" id="todo-tasks">
+        <h3>To Do</h3>
+        <% todoTasks.forEach(task => { %>
+        <li class="task" data-task-id="<%= task._id %>" data-status="To Do" draggable="true">
+            <div class="task-content"><%= task.description %></div>
+            <div class="task-duration">Duration: <%= task.durationInMinutes %> minutes</div>
+
+            <button class="delete-btn" data-task-id="<%= task._id %>">x</button>
+          </li>
+        <% }); %>
+    </div>
+
+    <div class="column" id="inProgress-tasks">
+        <h3>In Progress</h3>
+        <% inProgressTasks.forEach(task => { %>
+        <li class="task" data-task-id="<%= task._id %>" data-status="In Progress" draggable="true">
+            <div class="task-content"><%= task.description %></div>
+            <div class="task-duration">Duration: <%= task.durationInMinutes %> minutes</div>
+
+            <button class="delete-btn" data-task-id="<%= task._id %>">x</button>
+          </li>
+        <% }); %>
+    </div>
+
+    <div class="column" id="done-tasks">
+        <h3>Done</h3>
+        <% doneTasks.forEach(task => { %>
+        <li class="task" data-task-id="<%= task._id %>" data-status="Done" draggable="true">
+            <div class="task-content"><%= task.description %></div>
+            <button class="delete-btn" data-task-id="<%= task._id %>">x</button>
+          </li>
+        <% }); %>
+    </div>
+  </div>
+
+  <a class="logout-btn" href="/logout">Logout</a>
+
+
+  <script>
+    // Update the task status on the server
+    async function updateTaskStatus(taskId, newStatus) {
+      try {
+        const response = await fetch('/update-task-status', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ taskId, newStatus })
+        });
+        if (!response.ok) {
+          throw new Error('Failed to update task status');
+        }
+        console.log('Task status updated successfully');
+      } catch (error) {
+        console.error('Error updating task status:', error);
+      }
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const taskId = btn.dataset.taskId;
+          try {
+            const response = await fetch(`/delete-task/${taskId}`, { method: 'DELETE' });
+            if (response.ok) {
+              // Remove the task element from the DOM
+              btn.parentElement.remove();
+              console.log(`Task with ID ${taskId} deleted successfully`);
+            } else {
+              console.error('Failed to delete task');
+            }
+          } catch (error) {
+            console.error('Error deleting task:', error);
+          }
+        });
+      });
+    });
+
+    //  Delete a task
+    async function deleteTask(taskId) {
+      try {
+        const response = await fetch(`/tasks/${taskId}`, { method: 'DELETE' });
+        if (!response.ok) {
+          throw new Error('Failed to delete task');
+        }
+        console.log('Task deleted successfully');
+        document.querySelector(`li[data-task-id="${taskId}"]`).remove(); // Remove the task element from the DOM
+      } catch (error) {
+        console.error('Error deleting task:', error);
+      }
+    }
+
+
+    // Event listeners for drag and drop
+    const tasks = document.querySelectorAll('.task');
+    let isDragging = false; 
+
+    tasks.forEach(task => {
+      task.addEventListener('dragstart', () => {
+        isDragging = true; 
+        task.classList.add('dragging');
+      });
+
+      task.addEventListener('dragend', () => {
+        isDragging = false;
+        task.classList.remove('dragging');
+      });
+
+      const deleteButton = task.querySelector('.delete-btn');
+      deleteButton.addEventListener('click', async (event) => {
+        if (!isDragging) {
+          const taskId = task.dataset.taskId;
+          await deleteTask(taskId);
+          task.remove();
+        }
+      });
+    });
+
+    // Event listeners for drag and drop
+    const columns = document.querySelectorAll('.column');
+    columns.forEach(column => {
+      column.addEventListener('dragover', e => {
+        e.preventDefault();
+        const afterElement = getDragAfterElement(column, e.clientY);
+        const draggingTask = document.querySelector('.dragging');
+        if (afterElement == null) {
+          column.appendChild(draggingTask);
+        } else {
+          column.insertBefore(draggingTask, afterElement);
+        }
+      });
+      column.addEventListener('drop', async e => {
+        e.preventDefault();
+        const draggingTask = document.querySelector('.dragging');
+        const taskId = draggingTask.dataset.taskId;
+        const targetColumnId = column.id.split('-')[0];
+        let targetStatus;
+        if (targetColumnId === 'todo') {
+          targetStatus = 'To Do';
+        } else if (targetColumnId === 'inProgress') {
+          targetStatus = 'In Progress';
+        } else if (targetColumnId === 'done') {
+          targetStatus = 'Done';
+        }
+        draggingTask.dataset.status = targetStatus;
+        column.appendChild(draggingTask);
+        await updateTaskStatus(taskId, targetStatus);
+      });
+    });
+
+    function getDragAfterElement(column, y) {
+      const taskElements = [...column.querySelectorAll('.task:not(.dragging)')];
+      return taskElements.reduce((closest, task) => {
+        const box = task.getBoundingClientRect();
+        const offset = y - box.top - box.height / 2;
+        if (offset < 0 && offset > closest.offset) {
+          return { offset: offset, element: task };
+        } else {
+          return closest;
+        }
+      }, { offset: Number.NEGATIVE_INFINITY }).element;
+    }
+  </script>
+</body>
+</html>
