@@ -25,4 +25,4 @@
 
 ## Usage
 
-- Node.js and MongoDB need to be installed to run the web app. In the project directory, use the command npm install. Then, replace your-db in server.js with the database you are using. Start MongoDB and then use the command node server.js while in the src directory to run the app. Use the URL given in the terminal to use the web app.
+- Node.js and MongoDB need to be installed to run the web app. In the project directory, use the command `npm install`. Then, replace your-db in server.js with the database you are using. Start MongoDB and then use the command `node server.js` while in the src directory to run the app. Use the URL given in the terminal to use the web app.
