@@ -1,8 +1,8 @@
 # General Info
 
 - Task Tracker is a web app where users can create an account and track the status of tasks they need to complete.
-- When a task is created, it starts in the To Do column and the task can be dragged to the In Progress column or the Done column depending on the status of the task.
-- The time spent on a task is tracked for the user to know how much time they have spent on a certain task.
+- When a task is created, it starts in the 'To Do' column and the task can be dragged to either the 'In Progress' or 'Done' column based on the task's status.
+- The time spent on a task is tracked for the user to know how much time they've spent on each task.
 
 
 ## Tools
@@ -25,4 +25,4 @@
 
 ## Usage
 
-- Node.js and MongoDB need to be installed to run the web app. In the project directory, use the command `npm install`. Then, replace your-db in server.js with the database you are using. Start MongoDB and then use the command `node server.js` while in the src directory to run the app. Use the URL given in the terminal to use the web app.
+- To run the web app, Node.js and MongoDB must be installed. In the project directory, run `npm install` to install dependencies. Next, replace 'your-db' in server.js with your database name. Start MongoDB, navigate to the 'src' directory, and run `node server.js` to start the app. Use the URL given in the terminal to use the web app.
