@@ -1,4 +1,4 @@
-# General Info
+## General Info
 
 - Task Tracker is a web app where users can create an account and track the status of tasks they need to complete.
 - When a task is created, it starts in the 'To Do' column and the task can be dragged to either the 'In Progress' or 'Done' column based on the task's status.
